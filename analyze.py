@@ -13,7 +13,7 @@ D18 入口: 每日监控流水线(规则检测 -> AI 归因 -> 日报落盘)
 
 from detector import detect_all
 from agent import MonitorAgent
-from report import build_report, save_report
+from report import build_report, save_report, save_analysis_json
 
 
 def main():
@@ -42,8 +42,9 @@ def main():
         results.append({"event": e, "report": report})
         print(f"\n{report}\n")
 
-    # 日报落盘: 按日期存 reports/监控报告-YYYY-MM-DD.md
+    # 日报落盘(markdown 存档) + 结构化快照(JSON, 给 dashboard.py 监控大屏读取)
     path = save_report(build_report(results))
+    save_analysis_json(results)
 
     print("=" * 60)
     print(f"全部调查完成: {len(results)} 个事件已归因")

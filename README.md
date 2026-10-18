@@ -35,7 +35,9 @@ agent.py             决策层: DeepSeek + function calling 工具循环
 tools.py             执行层: query_sales / query_reviews (pandas 查 CSV)
     │                  真实场景替换为: SQL / 数据仓库
     ▼
-report.py            归因报告 → reports/监控报告-YYYY-MM-DD.md
+report.py            归因报告 → markdown 日报 + JSON 快照 (reports/)
+    ▼
+dashboard.py         Streamlit 监控大屏: 趋势图/指标卡/事件归因 (读快照, 零API成本)
 ```
 
 ## 内置剧本：3 起事故，AI 全部查对
@@ -59,6 +61,7 @@ copy .env.example .env        # 填入 DeepSeek API Key
 python gen_data.py            # ① 生成模拟数据(本地运行, 零成本)
 python detector.py            # ② 单测规则层(零成本)
 python analyze.py             # ③ 完整流水线: 检测→AI归因→日报(约几分钱)
+streamlit run dashboard.py    # ④ 监控大屏: 读快照展示, 零成本秒开
 ```
 
 无人值守（可选）：`run_monitor.bat` 是调度入口（输出追加到 monitor.log），注册每日任务：
@@ -77,10 +80,11 @@ data-monitor-agent/
 ├── tools.py         # 执行层: AI 的数据查询工具 + 分发器
 ├── agent.py         # 决策层: 分析师 prompt + 工具调用循环
 ├── analyze.py       # 入口: 检测→归因→落盘 完整流水线
-├── report.py        # 日报生成(markdown)
+├── report.py        # 日报生成(markdown) + JSON 快照
+├── dashboard.py     # Streamlit 监控大屏(趋势/指标/归因)
 ├── run_monitor.bat  # 定时调度入口
 ├── data/            # sales.csv / reviews.csv
-└── reports/         # 每日监控报告存档
+└── reports/         # 日报存档 + latest_analysis.json 快照
 ```
 
 ## 真实业务替换点
