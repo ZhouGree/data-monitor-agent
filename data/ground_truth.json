@@ -1,0 +1,26 @@
+[
+  {
+    "id": "A1",
+    "category": "精华",
+    "start": "2026-10-08",
+    "end": "2026-10-10",
+    "reason": "过敏",
+    "severity": "high"
+  },
+  {
+    "id": "A2",
+    "category": "面膜",
+    "start": "2026-10-12",
+    "end": "2026-10-13",
+    "reason": "破损",
+    "severity": "high"
+  },
+  {
+    "id": "A3",
+    "category": "水乳",
+    "start": "2026-10-15",
+    "end": "2026-10-16",
+    "reason": "物流",
+    "severity": "high"
+  }
+]

@@ -13,12 +13,13 @@ REPORT_DIR = Path(__file__).parent / "reports"
 
 
 def build_report(results: list[dict]) -> str:
-    """results: [{"event": 事件dict, "report": AI报告str}, ...] -> markdown 全文"""
+    """results: [{"event": 事件dict, "report": AI报告str, "failed": bool}, ...] -> markdown 全文"""
+    failed = sum(1 for r in results if r.get("failed"))
     lines = [
         "# 平台数据监控日报",
         "",
         f"- 生成时间: {datetime.now():%Y-%m-%d %H:%M:%S}",
-        f"- 异常事件: {len(results)} 个",
+        f"- 异常事件: {len(results)} 个" + (f"（其中 {failed} 个调查失败）" if failed else ""),
         "",
     ]
 
@@ -30,7 +31,8 @@ def build_report(results: list[dict]) -> str:
             "",
             f"> 规则详情: {e['detail']}",
             "",
-            "### AI 归因",
+            # 失败的事件要显式标出来, 否则读报告的人会以为这就是 AI 的结论
+            "### AI 归因（调查失败，需人工复核）" if r.get("failed") else "### AI 归因",
             "",
             r["report"],
             "",
@@ -59,6 +61,8 @@ def save_analysis_json(results: list[dict]) -> Path:
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "events": [r["event"] for r in results],
         "reports": [r["report"] for r in results],
+        # 大屏也要能区分"AI 结论"和"调查失败", 否则失败说明会被当成归因正文展示
+        "failed": [bool(r.get("failed")) for r in results],
     }
     REPORT_DIR.mkdir(exist_ok=True)
     path = REPORT_DIR / "latest_analysis.json"

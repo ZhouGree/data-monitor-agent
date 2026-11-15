@@ -30,6 +30,7 @@ SYSTEM_PROMPT = """你是电商平台的数据分析师, 任务是调查监控�
 【建议动作】1-2 条可执行建议"""
 
 MAX_TOOL_ROUNDS = 5          # 保险丝: 防止 AI 反复查数死循环烧 token
+REQUEST_TIMEOUT = 30         # 单次请求超时(秒), 防止网络卡死把整轮拖住
 
 
 class MonitorAgent:
@@ -37,7 +38,10 @@ class MonitorAgent:
         api_key = os.getenv("DEEPSEEK_API_KEY")
         if not api_key:
             raise RuntimeError("未找到 DEEPSEEK_API_KEY, 请复制 .env.example 为 .env 并填入 key")
-        self.client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
+        # max_retries=0: 重试交给 analyze.py 的 investigate(), 那里有统一的
+        # 失败隔离/等待/汇总; 两层各重试一次会放大等待时间和重复计费。
+        self.client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com",
+                             timeout=REQUEST_TIMEOUT, max_retries=0)
         self.messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 
     def chat(self, user_input: str) -> str:

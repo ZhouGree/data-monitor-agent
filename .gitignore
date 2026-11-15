@@ -4,3 +4,4 @@ __pycache__/
 venv/
 .venv/
 monitor.log
+data/monitor.db

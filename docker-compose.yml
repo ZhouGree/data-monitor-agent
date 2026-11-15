@@ -1,0 +1,19 @@
+services:
+  monitor-api:
+    build: .
+    container_name: data-monitor-api
+    ports:
+      - "8000:8000"
+    environment:
+      # 不配置 key 也能起, 只是 ai=true 的调查会失败并标记为需人工复核
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+    volumes:
+      # 数据和日报挂出来, 容器重建不丢历史
+      - ./data:/app/data
+      - ./reports:/app/reports
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
